@@ -46,6 +46,16 @@ namespace Fare
         /// </returns>
         public bool Equals(State x, State y)
         {
+            if (x == y)
+            {
+                return true;
+            }
+
+            if (x == null || y == null)
+            {
+                return false;
+            }
+
             return x.Equals(y);
         }
 
@@ -62,7 +72,7 @@ namespace Fare
         ///   </exception>
         public int GetHashCode(State obj)
         {
-            return obj.GetHashCode();
+            return obj == null ? base.GetHashCode() : obj.GetHashCode();
         }
     }
 }

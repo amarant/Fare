@@ -77,7 +77,7 @@ namespace Fare
         /// <summary>
         /// Gets or sets this State Transitions.
         /// </summary>
-        public IList<Transition> Transitions { get; set; }
+        public ISet<Transition> Transitions { get; set; }
 
         /// <summary>
         /// Implements the operator ==.
@@ -190,9 +190,23 @@ namespace Fare
         /// </param>
         /// <returns>
         /// A 32-bit signed integer that indicates the relative order of the objects being compared.
+        /// The return value has the following meanings:
+        /// Value
+        /// Meaning
+        /// Less than zero
+        /// This object is less than the <paramref name="other"/> parameter.
+        /// Zero
+        /// This object is equal to <paramref name="other"/>.
+        /// Greater than zero
+        /// This object is greater than <paramref name="other"/>.
         /// </returns>
         public int CompareTo(State other)
         {
+            if (other == null)
+            {
+                return 1;
+            }
+
             return other.Id - this.Id;
         }
 
@@ -286,7 +300,7 @@ namespace Fare
 
         internal void ResetTransitions()
         {
-            this.Transitions = new List<Transition>();
+            this.Transitions = new HashSet<Transition>();
         }
     }
 }

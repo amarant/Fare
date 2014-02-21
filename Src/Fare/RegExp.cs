@@ -32,6 +32,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -226,7 +227,7 @@ namespace Fare
             return r;
         }
 
-        private static RegExp MakeIntersection(RegExp exp1, RegExp exp2)
+        internal static RegExp MakeIntersection(RegExp exp1, RegExp exp2)
         {
             var r = new RegExp();
             r.kind = Kind.RegexpIntersection;
@@ -404,7 +405,7 @@ namespace Fare
             return s.Replace("\\d", "[0-9]");
         }
 
-        private Automaton ToAutomatonAllowMutate(
+        public Automaton ToAutomatonAllowMutate(
             IDictionary<string, Automaton> automata,
             IAutomatonProvider automatonProvider,
             bool minimize)
@@ -612,8 +613,8 @@ namespace Fare
                     sb.Append("<").Append(s).Append(">");
                     break;
                 case Kind.RegexpInterval:
-                    string s1 = Convert.ToDecimal(min).ToString();
-                    string s2 = Convert.ToDecimal(max).ToString();
+                    string s1 = Convert.ToDecimal(min).ToString(CultureInfo.CurrentCulture);
+                    string s2 = Convert.ToDecimal(max).ToString(CultureInfo.CurrentCulture);
                     sb.Append("<");
                     if (digits > 0)
                     {
@@ -756,7 +757,7 @@ namespace Fare
                         throw new ArgumentException("integer expected at position " + pos);
                     }
 
-                    int n = int.Parse(b.Substring(start, pos - start));
+                    int n = int.Parse(b.Substring(start, pos - start), CultureInfo.CurrentCulture);
                     int m = -1;
                     if (this.Match(','))
                     {
@@ -768,7 +769,7 @@ namespace Fare
 
                         if (start != pos)
                         {
-                            m = int.Parse(b.Substring(start, pos - start));
+                            m = int.Parse(b.Substring(start, pos - start), CultureInfo.CurrentCulture);
                         }
                     }
                     else
@@ -928,8 +929,8 @@ namespace Fare
 
                     string smin = str.Substring(0, i - 0);
                     string smax = str.Substring(i + 1, (str.Length - (i + 1)));
-                    int imin = int.Parse(smin);
-                    int imax = int.Parse(smax);
+                    int imin = int.Parse(smin, CultureInfo.CurrentCulture);
+                    int imax = int.Parse(smax, CultureInfo.CurrentCulture);
                     int numdigits = smin.Length == smax.Length ? smin.Length : 0;
                     if (imin > imax)
                     {

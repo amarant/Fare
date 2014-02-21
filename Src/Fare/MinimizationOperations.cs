@@ -80,10 +80,10 @@ namespace Fare
         public static void MinimizeHopcroft(Automaton a)
         {
             a.Determinize();
-            IList<Transition> tr = a.Initial.Transitions;
+            ISet<Transition> tr = a.Initial.Transitions;
             if (tr.Count == 1)
             {
-                Transition t = tr[0];
+                Transition t = tr.Single();
                 if (t.To == a.Initial && t.Min == char.MinValue && t.Max == char.MaxValue)
                 {
                     return;

@@ -70,7 +70,7 @@ namespace Fare
 
             foreach (State r in states)
             {
-                r.Transitions = m[r].ToList();
+                r.Transitions = new HashSet<Transition>(m[r]);
             }
 
             // Make new initial+final states.

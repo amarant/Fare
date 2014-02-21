@@ -18,6 +18,8 @@
  */
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace Fare
@@ -31,17 +33,28 @@ namespace Fare
     {
         private const RegExpSyntaxOptions AllExceptAnyString = RegExpSyntaxOptions.All & ~RegExpSyntaxOptions.Anystring;
 
-        private readonly Automaton automaton;
+        private Automaton automaton;
         private readonly Random random;
+        private readonly int? _minLength;
+        private readonly int? _maxLength;
+        private RegExp regExp;
+
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="Xeger"/> class.
+        /// Initializes a new instance of the <see cref="Xeger" /> class.
         /// </summary>
         /// <param name="regex">The regex.</param>
         /// <param name="random">The random.</param>
-        public Xeger(string regex, Random random)
+        /// <param name="minLength">The minimum length.</param>
+        /// <param name="maxLength">The maximum length.</param>
+        /// <exception cref="System.ArgumentNullException">
+        /// regex
+        /// or
+        /// random
+        /// </exception>
+        public Xeger(string regex, Random random, int? minLength, int? maxLength)
         {
-            if (string.IsNullOrEmpty(regex))
+            if (regex == null)
             {
                 throw new ArgumentNullException("regex");
             }
@@ -51,8 +64,20 @@ namespace Fare
                 throw new ArgumentNullException("random");
             }
 
-            this.automaton = new RegExp(regex, AllExceptAnyString).ToAutomaton();
+            regExp = new RegExp(regex, AllExceptAnyString);
             this.random = random;
+            _minLength = minLength;
+            _maxLength = maxLength;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Xeger"/> class.
+        /// </summary>
+        /// <param name="regex">The regex.</param>
+        /// <param name="random">The random.</param>
+        public Xeger(string regex, Random random)
+            : this(regex, random, null, null)
+        {
         }
 
         /// <summary>
@@ -65,11 +90,27 @@ namespace Fare
         }
 
         /// <summary>
+        /// Add a regular expression that will make an intersection with the current one.
+        /// </summary>
+        /// <param name="regex">The regex.</param>
+        public void AddIntersection(string regex)
+        {
+            var exp = new RegExp(regex, AllExceptAnyString);
+            this.regExp = RegExp.MakeIntersection(regExp, exp);
+            this.automaton = null;
+        }
+
+        /// <summary>
         /// Generates a random String that is guaranteed to match the regular expression passed to the constructor.
         /// </summary>
         /// <returns></returns>
         public string Generate()
         {
+            if (automaton == null)
+            {
+                this.automaton = regExp.ToAutomaton();
+            }
+
             var builder = new StringBuilder();
             this.Generate(builder, automaton.Initial);
             return builder.ToString().TrimStart('^').TrimEnd('$');
@@ -103,7 +144,19 @@ namespace Fare
             }
 
             int nroptions = state.Accept ? transitions.Count : transitions.Count - 1;
-            int option = Xeger.GetRandomInt(0, nroptions, random);
+            var minOption = 0;
+            if (_minLength != null
+                && builder.Length < _minLength)
+            {
+                minOption = 1;
+            }
+            if (_maxLength != null
+                && builder.Length == _maxLength)
+            {
+                minOption = 0;
+                nroptions = 0;
+            }
+            int option = Xeger.GetRandomInt(minOption, nroptions, random);
             if (state.Accept && option == 0)
             {
                 // 0 is considered stop.

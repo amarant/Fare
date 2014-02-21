@@ -31,6 +31,7 @@
  */
 
 using System;
+using System.Globalization;
 using System.Text;
 
 namespace Fare
@@ -238,7 +239,7 @@ namespace Fare
             else
             {
                 sb.Append("\\u");
-                string s = ((int)c).ToString("x");
+                string s = ((int)c).ToString("x", CultureInfo.CurrentCulture);
                 if (c < 0x10)
                 {
                     sb.Append("000").Append(s);
